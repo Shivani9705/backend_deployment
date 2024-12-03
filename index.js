@@ -7,41 +7,50 @@ import tweetRoute from "./routes/tweetRoute.js";
 import cors from "cors";
 
 dotenv.config({
-    path:".env"
-})
-databaseConnection();
-const app = express(); 
+    path: ".env",
+});
 
-// middlewares
-app.use(express.urlencoded({
-    extended:true
-}));
+// Connect to the database
+databaseConnection();
+
+const app = express();
+
+// Middleware
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({
-    // origin: "http://localhost:3000",
-    origin: "https://majestic-pasca-ab4588.netlify.app",
-    credentials: true,
-}));
 
-// const corsOptions = {
-//     origin: [
-//         // "https://twitter-clone-3-txso.onrender.com",
-//         // "http://localhost:3000"
-//         "http://localhost:3000", 
-//     ],
-//     credentials: true
-// }
-// app.use(cors(corsOptions));
+// Define allowed origins
+const allowedOrigins = [
+    "https://majestic-pasca-ab4588.netlify.app", // Netlify frontend
+    "http://localhost:3000", // Local development
+];
 
-app.get('/', (req, res) => {
-    res.send('Welcome to the API');
+// Dynamic CORS setup
+app.use(
+    cors({
+        origin: (origin, callback) => {
+            // Allow requests with no origin (like mobile apps or Postman)
+            if (!origin || allowedOrigins.includes(origin)) {
+                callback(null, true);
+            } else {
+                callback(new Error("Not allowed by CORS"));
+            }
+        },
+        credentials: true, // Allow cookies and other credentials
+    })
+);
+
+// Test route
+app.get("/", (req, res) => {
+    res.send("Welcome to the API");
 });
-// api
-app.use("/api/v1/user",userRoute);
-app.use("/api/v1/tweet", tweetRoute);
- 
 
-app.listen(process.env.PORT,() => {
-    console.log(`Server listen at port ${process.env.PORT}`);
-})
+// API routes
+app.use("/api/v1/user", userRoute);
+app.use("/api/v1/tweet", tweetRoute);
+
+// Start the server
+app.listen(process.env.PORT, () => {
+    console.log(`Server is listening at port ${process.env.PORT}`);
+});
