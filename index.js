@@ -18,12 +18,21 @@ app.use(express.urlencoded({
 }));
 app.use(express.json());
 app.use(cookieParser());
-const corsOptions = {
-    origin:"https://twitter-clone-3-txso.onrender.com",
-    // origin:"http://localhost:3000",
-    credentials:true
-}
-app.use(cors(corsOptions));
+app.use(cors({
+    // origin: "http://localhost:3000",
+    origin: "https://majestic-pasca-ab4588.netlify.app",
+    credentials: true,
+}));
+
+// const corsOptions = {
+//     origin: [
+//         // "https://twitter-clone-3-txso.onrender.com",
+//         // "http://localhost:3000"
+//         "http://localhost:3000", 
+//     ],
+//     credentials: true
+// }
+// app.use(cors(corsOptions));
 
 app.get('/', (req, res) => {
     res.send('Welcome to the API');
