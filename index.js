@@ -31,11 +31,18 @@ const allowedOrigins = [
 // Dynamic CORS setup
 app.use(
     cors({
-        origin: "*",
+        origin: function (origin, callback) {
+            if (!origin) return callback(null, true);
+            if (allowedOrigins.includes(origin)) {
+                return callback(null, true);
+            } else {
+                console.error("Blocked by CORS:", origin);
+                return callback(new Error("Not allowed by CORS"));
+            }
+        },
         credentials: true,
     })
 );
-
 
 // Test route
 app.get("/", (req, res) => {
@@ -47,6 +54,6 @@ app.use("/api/v1/user", userRoute);
 app.use("/api/v1/tweet", tweetRoute);
 
 // Start the server
-app.listen(process.env.PORT, () => {
-    console.log(`Server is listening at port ${process.env.PORT}`);
+app.listen(PORT, () => {
+    console.log(`Server is listening at port ${PORT}`);
 });
