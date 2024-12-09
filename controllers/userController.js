@@ -1,6 +1,8 @@
 import { User } from "../models/userSchema.js";
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
+import dotenv from 'dotenv';
+dotenv.config();
 
 export const Register = async (req, res) => {
     try {
@@ -36,103 +38,43 @@ export const Register = async (req, res) => {
         console.log(error);
     }
 }
-// export const Login = async (req, res) => {
-//     try {
-//         const { email, password } = req.body;
-//         if (!email || !password) {
-//             return res.status(401).json({
-//                 message: "All fields are required.",
-//                 success: false
-//             })
-//         };
-//         const user = await User.findOne({ email });
-//         if (!user) {
-//             return res.status(401).json({
-//                 message: "Incorrect email or password",
-//                 success: false
-//             })
-//         }
-//         const isMatch = await bcryptjs.compare(password, user.password);
-//         if (!isMatch) {
-//             return res.status(401).json({
-//                 message: "Incorect email or password",
-//                 success: false
-//             });
-//         }
-//         const tokenData = {
-//             userId: user._id
-//         }
-//         const token = await jwt.sign(tokenData, process.env.TOKEN_SECRET, { expiresIn: "1d" });
-//         return res.status(201).cookie("token", token, { expiresIn: "1d", httpOnly: true }).json({
-//             message: `Welcome back ${user.name}`,
-//             user,
-//             success: true
-//         })
-//     } catch (error) {
-//         console.log(error);
-//     }
-// }
-import bcryptjs from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import User from '../models/User'; // Assuming your User model is imported correctly
-import dotenv from 'dotenv';
-dotenv.config();
-
 export const Login = async (req, res) => {
     try {
         const { email, password } = req.body;
-        
-        // Validate input
         if (!email || !password) {
             return res.status(401).json({
                 message: "All fields are required.",
                 success: false
-            });
-        }
-
-        // Find user by email
+            })
+        };
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(401).json({
                 message: "Incorrect email or password",
                 success: false
-            });
+            })
         }
-
-        // Compare password
         const isMatch = await bcryptjs.compare(password, user.password);
         if (!isMatch) {
             return res.status(401).json({
-                message: "Incorrect email or password",
+                message: "Incorect email or password",
                 success: false
             });
         }
-
-        // Create JWT token
-        const tokenData = { userId: user._id };
-        const token = jwt.sign(tokenData, process.env.TOKEN_SECRET, { expiresIn: "1d" });
-
-        // Set the token in the cookies and send response
-        res.cookie("token", token, {
-            httpOnly: true,  // Cookie cannot be accessed via JavaScript
-            secure: process.env.NODE_ENV === "production",  // Secure cookie for HTTPS in production
-            sameSite: "Strict",  // Prevents cross-site request forgery (CSRF)
-            expires: new Date(Date.now() + 24 * 60 * 60 * 1000)  // Cookie expires in 1 day
-        });
-
-        return res.status(201).json({
+        const tokenData = {
+            userId: user._id
+        }
+        const token = await jwt.sign(tokenData, process.env.TOKEN_SECRET, { expiresIn: "1d" });
+        return res.status(201).cookie("token", token, { expiresIn: "1d", httpOnly: true }).json({
             message: `Welcome back ${user.name}`,
             user,
             success: true
-        });
+        })
     } catch (error) {
         console.log(error);
-        res.status(500).json({
-            message: "Server error. Please try again later.",
-            success: false
-        });
     }
-};
+}
+
 
 export const logout = (req, res) => {
     return res.cookie("token", "", { expiresIn: new Date(Date.now()) }).json({
