@@ -29,20 +29,26 @@ const allowedOrigins = [
 ];
 
 // Dynamic CORS setup
+// app.use(
+//     cors({
+//         origin: function (origin, callback) {
+//             if (!origin) return callback(null, true);
+//             if (allowedOrigins.includes(origin)) {
+//                 return callback(null, true);
+//             } else {
+//                 console.error("Blocked by CORS:", origin);
+//                 return callback(new Error("Not allowed by CORS"));
+//             }
+//         },
+//         credentials: true,
+//     })
+// );
 app.use(
     cors({
-        origin: function (origin, callback) {
-            if (!origin) return callback(null, true);
-            if (allowedOrigins.includes(origin)) {
-                return callback(null, true);
-            } else {
-                console.error("Blocked by CORS:", origin);
-                return callback(new Error("Not allowed by CORS"));
-            }
-        },
-        credentials: true,
+      origin: 'https://majestic-pasca-ab4588.netlify.app', // Replace with your frontend URL
+      credentials: true, // Allows cookies to be sent
     })
-);
+  );
 
 // Test route
 app.get("/", (req, res) => {
